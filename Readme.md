@@ -1,8 +1,6 @@
-
 ### 🚀 模型部署 (deployment)
 - **FAST_DEPLOYMENT_GUIDE.md**: 详细的快速部署指南
 - **Modelfile**: Ollama模型配置文件
-- **WellnessOne_fast_lora.gguf**: 训练好的LoRA权重文件
 - 支持一键部署到Ollama服务
 
 ### 📱 Web应用 (application)
