@@ -1,0 +1,243 @@
+# 模型配置
+model:
+  base_model: "Qwen/Qwen2.5-0.5B"  # 基础模型  
+  model_name: "Fit-chat"  # 模型名称
+  max_length: 2048  # 最大序列长度（Qwen2.5支持更长序列）
+  trust_remote_code: true
+
+# 训练参数
+training:
+  output_dir: "./training/models/Fit"  # 模型输出目录
+  num_train_epochs: 3  # 训练轮数
+  per_device_train_batch_size: 2  # 训练批次大小（Qwen2.5-0.5B需要更多内存）
+  per_device_eval_batch_size: 2  # 评估批次大小
+  gradient_accumulation_steps: 8  # 梯度累积步数（增加以补偿小批次）
+  learning_rate: 2e-4  # 学习率（Qwen模型推荐较小学习率）
+  weight_decay: 0.01  # 权重衰减
+  warmup_ratio: 0.1  # 预热比例
+  max_grad_norm: 1.0  # 梯度裁剪
+  
+  # 保存和评估
+  save_steps: 500  # 保存间隔
+  eval_steps: 500  # 评估间隔
+  logging_steps: 50  # 日志间隔
+  save_total_limit: 3  # 最多保存模型数
+  
+  # 早停
+  early_stopping_patience: 3
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+
+# LoRA配置
+lora:
+  use_lora: true  # 是否使用LoRA
+  lora_rank: 8  # LoRA秩
+  lora_alpha: 32  # LoRA alpha参数
+  lora_dropout: 0.1  # LoRA dropout
+  target_modules:  # Qwen2.5模型的目标模块
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"  # 偏置设置
+
+# 数据配置
+data:
+  train_file: "./data/processed/train.jsonl"  # 训练数据
+  validation_file: "./data/processed/train.jsonl"  # 验证数据
+  test_file: "./data/processed/train.jsonl"  # 测试数据
+  
+  # 数据分割比例
+  train_split: 0.8
+  validation_split: 0.1
+  test_split: 0.1
+  
+  # 数据处理
+  max_source_length: 256  # 输入最大长度
+  max_target_length: 256  # 输出最大长度
+  ignore_pad_token_for_loss: true
+
+# 生成参数
+generation:
+  max_new_tokens: 256  # 最大生成长度
+  temperature: 0.7  # 温度参数
+  top_p: 0.9  # top-p采样
+  top_k: 50  # top-k采样
+  do_sample: true  # 是否采样
+  repetition_penalty: 1.1  # 重复惩罚
+  length_penalty: 1.0  # 长度惩罚
+  num_beams: 1  # beam search数量
+
+# 角色特定配置
+character:
+  name: "林安宁"  # 角色名称
+  aliases:  # 别名
+    - "安宁医生"
+    - "林医生"
+    - "小林"
+    - "安宁医师"
+  
+  personality:  # 性格特征
+    - "耐心细致"
+    - "温和亲切"
+    - "专业严谨"
+    - "富有同理心"
+    - "责任感强"
+  
+  language_style:  # 语言风格
+    - "通俗易懂"
+    - "逻辑清晰"
+    - "安抚人心"
+    - "简洁明了"
+  
+  background: |
+    林安宁，毕业于北京协和医学院的全科医生，拥有十余年临床诊疗经验。
+    曾在社区卫生中心与三甲医院工作，熟悉常见病、多发病及慢病管理。
+    以细致的问诊与耐心的倾听著称，善于用简单易懂的语言解释复杂的医学问题，
+    致力于让每一位患者在交流中感到安心与被理解。
+
+
+# 系统配置
+system:
+  device: "auto"  # 设备选择: auto, cuda, mps, cpu
+  mixed_precision: "no"  # 混合精度: fp16, bf16, no (MPS不支持fp16)
+  dataloader_num_workers: 4  # 数据加载器工作进程数
+  seed: 42  # 随机种子
+  
+  # 内存优化
+  gradient_checkpointing: true  # 梯度检查点
+  dataloader_pin_memory: true  # 固定内存
+  remove_unused_columns: false  # 移除未使用列
+
+# 日志配置
+logging:
+  log_level: "INFO"  # 日志级别
+  log_file: "..training/logs/Fit_train.log"  # 日志文件
+  report_to: []  # 报告到: ["wandb", "tensorboard"]
+  
+  # Weights & Biases配置（可选）
+  wandb:
+    project: "Fit-chat"
+    name: "Fit-lora-training"
+    tags: ["lora", "chatglm2", "character"]
+
+# 评估配置
+evaluation:
+  eval_strategy: "steps"  # 评估策略
+  eval_steps: 500  # 评估步数
+  per_device_eval_batch_size: 4  # 评估批次大小
+  
+  # 评估指标
+  metrics:
+    - "loss"
+    - "perplexity"
+    - "bleu"  # 可选
+
+# 保存配置
+saving:
+  save_strategy: "steps"  # 保存策略
+  save_steps: 500  # 保存步数
+  save_total_limit: 3  # 最大保存数量
+  load_best_model_at_end: true  # 加载最佳模型
+
+# 特殊功能
+special_features:
+  # 角色一致性检查
+  character_consistency_check: true
+  consistency_keywords:
+    - "医生"
+    - "客户"
+  
+  # 生成质量过滤
+  quality_filter:
+    min_length: 10  # 最小长度
+    max_repetition_ratio: 0.3  # 最大重复比例
+    forbidden_words: []  # 禁用词
+
+# 数据增强
+data_augmentation:
+  enable: true  # 是否启用
+  
+  # 同义词替换
+  synonym_replacement:
+    enable: true
+    ratio: 0.1  # 替换比例
+  
+  # 语序调整
+  word_order_change:
+    enable: false
+    ratio: 0.05
+
+# 后处理
+post_processing:
+  # 文本清理
+  text_cleaning:
+    remove_extra_spaces: true
+    remove_special_chars: false
+    normalize_punctuation: true
+  
+  # 格式化
+  formatting:
+    add_special_tokens: true
+    max_length_truncation: true
+
+# 部署配置
+deployment:
+  # Ollama配置
+  ollama:
+    model_name: "Fit-chat"
+    base_model: "qwen2.5:3b"  # Ollama基础模型（与训练模型一致）
+    
+    # 模型参数
+    parameters:
+      temperature: 0.7
+      top_p: 0.9
+      top_k: 40
+      repeat_penalty: 1.1
+      num_ctx: 2048
+    
+    # 系统提示
+    system_prompt: |
+      你是林安宁，一位经验丰富的全科医生，毕业于北京协和医学院，
+      拥有十余年临床诊疗经验。你曾在社区卫生中心与三甲医院工作，
+      熟悉常见病、多发病及慢病管理。你耐心细致，温和亲切，专业严谨，
+      善于倾听并用通俗易懂的方式解释复杂的医学问题，让患者感到安心与被理解。
+      
+      请用林安宁医生的语气和风格来回答问题，
+      语言要温和、逻辑清晰、简洁明了，避免过多晦涩的医学术语，
+      在传递专业知识的同时给予心理上的安抚与关怀。
+      
+      回答时请注意：
+      1. 使用“我”自称
+      2. 先关注患者的感受，再给出专业建议
+      3. 语言简洁易懂，必要时举生活化的例子
+      4. 保持温暖、细致、值得信赖的态度
+      5. 维持角色的一致性和真实性
+
+    
+    # 对话模板
+    template: |
+      {{ if .System }}<|im_start|>system
+      {{ .System }}<|im_end|>
+      {{ end }}{{ if .Prompt }}<|im_start|>user
+      {{ .Prompt }}<|im_end|>
+      <|im_start|>assistant
+      {{ end }}{{ .Response }}<|im_end|>
+
+# 实验配置
+experiment:
+  name: "Fit-chat-v1"
+  description: "基于诊疗数据的私人健康助手角色对话模型训练"
+  tags: ["character", "chinese", "lora", "chatglm2"]
+  
+  # 超参数搜索（可选）
+  hyperparameter_search:
+    enable: false
+    method: "grid"  # grid, random, bayesian
+    parameters:
+      learning_rate: [1e-4, 5e-4, 1e-3]
+      lora_rank: [4, 8, 16]
+      lora_alpha: [16, 32, 64]

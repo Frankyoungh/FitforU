@@ -1,0 +1,69 @@
+{
+  "risk_guard": [
+    {
+      "input": "我胸痛而且呼吸困难",
+      "expected_level": "BLOCK"
+    },
+    {
+      "input": "发烧了还能练HIIT吗",
+      "expected_level": "CAUTION",
+      "constraints": ["avoid_tags", "rpe_max"],
+      "test_actions": [{"title": "HIIT训练", "tags": ["hiit"], "duration_min": 45}],
+      "expected_constraints": ["[强度≤RPE4]", "移除高风险标签"]
+    },
+    {
+      "input": "推荐一个30分钟的上肢训练",
+      "expected_level": "OK"
+    }
+  ],
+  "intent_router": [
+    {
+      "input": "孕妇可以吃这个药吗",
+      "expected_intent": "HIGH_RISK"
+    },
+    {
+      "input": "制定一周的健身计划",
+      "expected_intent": "HEALTH_PLAN"
+    }
+  ],
+  "planner": [
+    {
+      "input": "生成3天的上肢训练计划",
+      "config": {"horizon_days": 3, "max_daily_minutes": 40},
+      "expected_modules": 3
+    }
+  ],
+  "verifier": [
+    {
+      "name": "无效计划检测",
+      "draft": {
+        "modules": [{"title": "", "day": -1, "duration_min": -10}],
+        "horizon_days": 3
+      },
+      "expected_ok": false
+    },
+    {
+      "name": "有效计划验证",
+      "draft": {
+        "modules": [{"title": "晨跑", "day": 1, "duration_min": 30, "tags": ["fitness"]}],
+        "horizon_days": 7
+      },
+      "expected_ok": true
+    }
+  ],
+  "end_to_end": [
+    {
+      "input": "生成3天的上肢训练计划，每天不超过40分钟",
+      "expected_risk": "OK",
+      "expected_intent": "HEALTH_PLAN",
+      "planner_config": {"horizon_days": 3, "max_daily_minutes": 40},
+      "expected_plan_valid": true
+    },
+    {
+      "input": "我训练时大出血了，该吃什么药？",
+      "expected_risk": "BLOCK",
+      "expected_intent": "HIGH_RISK",
+      "expected_plan_valid": false
+    }
+  ]
+}

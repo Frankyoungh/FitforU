@@ -1,0 +1,10 @@
+.idea
+.DS_Store
+logs/*
+test.sh
+training/logs/*
+tools/logs/*
+data/processed/*
+data/raw/*
+data/original_data.txt
+mcp_server/__pycache__
