@@ -6,7 +6,7 @@
 - 支持一键部署到Ollama服务
 
 ### 📱 Web应用 (application)
-- **WellnessOne_web.py**: 基于 Streamlit 的医生角色对话Web界面
+- **WellnessOne_web.py**: 基于 Streamlit 的对话Web界面
 - 支持实时对话、参数调节、聊天历史管理
 - 提供直观的用户界面和流式对话体验
 
@@ -96,7 +96,7 @@ MCP模块解决的问题是为模型提供标准化的工具接口，让外部�
 from mcp.server.fastmcp import FastMCP
 ```
 
-### 8.2 创建MCP服务器实例
+###创建MCP服务器实例
 ```python
 mcp = FastMCP("WellnessOne-chat")
 
@@ -115,7 +115,7 @@ MODEL_NAME = get_model_name()
 - 通过工具类扩展同一个模型的使用，比如角色扮演对话及诗词互动
 
 
-### 8.3 使用方式
+###使用方式
 - 启动方式
 ```python
 # 方式1: 直接运行模块
