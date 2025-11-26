@@ -1,5 +1,5 @@
 
-# Plan Generation and Management System
+# FitForU-An Intelligent Health Assistant Agent System
 
 ## Project Overview
 This system is a specialized tool for generating and managing plans in health, fitness, nutrition, and related domains. It automatically creates structured plan drafts based on user input, configuration settings, and historical preferences, while supporting full lifecycle functions including plan verification, schedule arrangement, and export. The goal is to help users efficiently plan health-related activities.
